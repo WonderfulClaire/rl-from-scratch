@@ -144,7 +144,7 @@ def train(total_steps=30_000, start_steps=1_000, batch=128, gamma=0.99,
         if ep_returns and (step + 1) % 2000 == 0:
             avg20 = np.mean(ep_returns[-20:])
             print(f"  step {step+1:6d}  episodes {len(ep_returns):4d}  "
-                  f"avg20 {avg20:8.1f}  alpha {float(log_alpha.exp()):.3f}")
+                  f"avg20 {avg20:8.1f}  alpha {log_alpha.exp().item():.3f}")
             if avg20 >= solve_at and len(ep_returns) >= 20:
                 print(f"  ✓ 达标 (avg20 = {avg20:.1f} >= {solve_at})")
                 break
