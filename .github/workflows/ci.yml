@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    name: compile + smoke test
+    name: compile + tabular smoke
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -40,3 +40,34 @@ jobs:
 
       - name: Run smoke tests (tabular, deterministic)
         run: python tests/smoke_test.py
+
+  deep-smoke:
+    name: deep RL chapters smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run deep-chapter smoke tests (PPO/SAC/MAPPO/DQN/RLHF/Trader)
+        run: python tests/smoke_deep.py
