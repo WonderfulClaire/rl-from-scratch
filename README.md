@@ -88,7 +88,7 @@
 
 ## 📊 效果一览（real runs）
 
-> 以下曲线均来自本仓库代码真实运行，由 [`tools/benchmark.py`](tools/benchmark.py) 生成，**3 个随机种子的均值 ± 标准差**，横轴为真实环境步数。完整数字见 [results/RESULTS.md](results/RESULTS.md)。
+> 以下曲线均来自本仓库代码真实运行，由 [`tools/benchmark.py`](tools/benchmark.py) 与 [`tools/mappo_curve.py`](tools/mappo_curve.py) 生成，**3 个随机种子的均值 ± 标准差**，横轴为真实环境步数。完整数字见 [results/RESULTS.md](results/RESULTS.md)。
 
 ### CartPole-v1：四种主流算法同台对比
 
@@ -102,11 +102,18 @@
 
 *DDPG / TD3 / SAC 的收敛速度与稳定性对比——TD3 与 SAC 明显比 DDPG 更稳。*
 
+### 多智能体（第 09 章）：MAPPO vs IPPO
+
+![MAPPO vs IPPO learning curves](results/mappo_gridworld_curves.png)
+
+*Rendezvous 网格世界里，中心化 Critic（MAPPO）相比去中心化（IPPO）收敛更快、方差更小——多智能体里的经典结论。*
+
 复现方式：
 
 ```bash
 python tools/benchmark.py --suite cartpole --seeds 3
 python tools/benchmark.py --suite pendulum --seeds 3
+python tools/mappo_curve.py --seeds 3 --iters 200
 ```
 
 ---

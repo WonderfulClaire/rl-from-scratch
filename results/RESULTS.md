@@ -67,6 +67,32 @@ python tools/benchmark.py --suite pendulum --seeds 3
 
 ---
 
+## 多智能体（第 09 章）：MAPPO vs IPPO
+
+![MAPPO vs IPPO learning curves](mappo_gridworld_curves.png)
+
+在 "多智能体 rendezvous" 网格世界上，对比中心化 Critic（MAPPO）与
+去中心化（IPPO）。横轴为训练迭代，纵轴为成功率（每轮 16 个 episode 的成功比例）。
+
+| 算法 | 最终成功率 (3 seeds) | 稳定达 0.95 的平均迭代 |
+|---|---|---|
+| **MAPPO**（中心化 Critic） | 1.000 / 1.000 / 1.000 | **70** |
+| **IPPO**（去中心化） | 1.000 / 1.000 / 1.000 | 84 |
+
+**读图要点：**
+- 两种算法最终都达到 100% 成功率，但 **MAPPO 明显更早、方差更小**——
+  中心化 Critic 让每个智能体在更新时"看见"全局状态，信用分配更高效；
+- IPPO 只用自己的局部观测做 Critic，梯度噪声更大，所以收敛更抖、更晚；
+- 这是多智能体 RL 里的经典结论：当通信 / 集中训练被允许时，MAPPO 几乎总是
+  优于 IPPO。曲线由 [`tools/mappo_curve.py`](../tools/mappo_curve.py) 生成（3 种子）。
+
+复现：
+```bash
+python tools/mappo_curve.py --seeds 3 --iters 200
+```
+
+---
+
 ## 表格型章节（第 01–04 章）
 
 这些章节确定性、单文件秒级，无随机种子之争。其结果在各自 README 中给出：
@@ -89,6 +115,8 @@ python tests/smoke_test.py
 
 - `cartpole_curves.npz` / `pendulum_curves.npz` 存了每个算法每种子的
   步数网格和滑动均值曲线，可重新画图或做下游分析：
+- `mappo_gridworld_curves.npz` 存了 MAPPO / IPPO 的迭代网格与成功率
+  均值 / 标准差曲线（`MAPPO_grid` / `MAPPO_mean` / `MAPPO_std` 等键）。
 
   ```python
   import numpy as np
