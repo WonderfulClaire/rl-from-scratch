@@ -38,7 +38,7 @@ $$
 **第二步：环境项消失。** $\log p_\theta(\tau) = \log\mu_0 + \sum_t \log\pi_\theta(a_t\mid s_t) + \sum_t \log P(s_{t+1}\mid s_t,a_t)$，只有中间一项含 $\theta$：
 
 $$
-\nabla_\theta J = \mathbb{E}_\tau\Big[\Big(\sum_{t=0}^{T-1}\nabla_\theta\log\pi_\theta(a_t\mid s_t)\Big) R(\tau)\Big]. \tag{1}
+\nabla_\theta J = \mathbb{E}_\tau\Big[\Big(\sum_{t=0}^{T-1}\nabla_\theta\log\pi_\theta(a_t\mid s_t)\Big) R(\tau)\Big]. 
 $$
 
 **不需要环境模型可微**——这是 RL 策略梯度与控制论方法的分水岭。
@@ -46,19 +46,19 @@ $$
 **第三步：因果性（reward-to-go）。** 时刻 $t$ 的动作不影响 $t$ 之前的奖励。严格论证：对 $t' < t$，$\mathbb{E}\big[\nabla\log\pi_\theta(a_t\mid s_t)\, r_{t'+1}\big] = \mathbb{E}\big[r_{t'+1}\,\mathbb{E}[\nabla\log\pi_\theta(a_t\mid s_t)\mid s_t]\big] = 0$，因为对任意 $s$：
 
 $$
-\mathbb{E}_{a\sim\pi_\theta}\big[\nabla_\theta\log\pi_\theta(a\mid s)\big] = \sum_a \pi_\theta \frac{\nabla\pi_\theta}{\pi_\theta} = \nabla_\theta \sum_a \pi_\theta(a\mid s) = \nabla_\theta 1 = 0. \tag{2}
+\mathbb{E}_{a\sim\pi_\theta}\big[\nabla_\theta\log\pi_\theta(a\mid s)\big] = \sum_a \pi_\theta \frac{\nabla\pi_\theta}{\pi_\theta} = \nabla_\theta \sum_a \pi_\theta(a\mid s) = \nabla_\theta 1 = 0. 
 $$
 
 于是 $R(\tau)$ 可换成 reward-to-go $G_t$：
 
 $$
-\nabla_\theta J = \mathbb{E}\Big[\sum_t \nabla_\theta\log\pi_\theta(a_t\mid s_t)\, G_t\Big]. \tag{3}
+\nabla_\theta J = \mathbb{E}\Big[\sum_t \nabla_\theta\log\pi_\theta(a_t\mid s_t)\, G_t\Big]. 
 $$
 
 **第四步：基线。** 由 (2)，任何只依赖状态的 $b(s_t)$ 满足 $\mathbb{E}[\nabla\log\pi_\theta(a_t\mid s_t)\, b(s_t)] = 0$，可以随意减去而**不引入偏差**：
 
 $$
-\boxed{\;\nabla_\theta J = \mathbb{E}\Big[\sum_t \nabla_\theta\log\pi_\theta(a_t\mid s_t)\,\big(G_t - b(s_t)\big)\Big]\;} \tag{4}
+\boxed{\;\nabla_\theta J = \mathbb{E}\Big[\sum_t \nabla_\theta\log\pi_\theta(a_t\mid s_t)\,\big(G_t - b(s_t)\big)\Big]\;} 
 $$
 
 方差分析表明近似最优的基线是 $b(s) \approx V^\pi(s)$，此时 $G_t - V^\pi(s_t)$ 正是**优势** $A^\pi$ 的估计——"这个动作比平均好多少"。直觉：如果所有回报都是正的，(3) 会"提升一切动作的概率、只是幅度不同"，数值上噪声极大；减掉基线后，比平均差的动作概率被明确压低。
@@ -97,7 +97,7 @@ $$
 n-step 优势估计的 λ-混合（与第 03 章 TD(λ) 完全同构）：
 
 $$
-\hat A_t^{\text{GAE}(\gamma,\lambda)} = \sum_{l=0}^{\infty} (\gamma\lambda)^l\, \delta_{t+l}. \tag{5}
+\hat A_t^{\text{GAE}(\gamma,\lambda)} = \sum_{l=0}^{\infty} (\gamma\lambda)^l\, \delta_{t+l}. 
 $$
 
 $\lambda = 0$ 退化为 $\delta_t$（低方差高偏差），$\lambda = 1$ 时 $\sum_l \gamma^l \delta_{t+l} = G_t - V(s_t)$（无偏高方差，望远镜求和可验证）。实践常取 $\lambda \in [0.95, 0.99]$。反向递推一行实现：$\hat A_t = \delta_t + \gamma\lambda \hat A_{t+1}$。PPO（第 07 章）标配 GAE。

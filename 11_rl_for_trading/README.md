@@ -39,7 +39,7 @@ demo 用离散目标仓位 $a_t \in \{-1, 0, +1\}$。真实世界的转移里，
 朴素选择——下一期的净损益：
 
 $$
-r_{t+1} = p_{t+1}\, y_{t+1} - c\,\lvert p_{t+1} - p_t \rvert, \tag{1}
+r_{t+1} = p_{t+1}\, y_{t+1} - c\,\lvert p_{t+1} - p_t \rvert, 
 $$
 
 $y_{t+1}$ 是资产收益率，$c$ 是单边成本（佣金+滑点）。两个重要改进：
@@ -47,7 +47,7 @@ $y_{t+1}$ 是资产收益率，$c$ 是单边成本（佣金+滑点）。两个�
 **① 风险调整**。总收益最大化会学出满仓梭哈。均值-方差效用的逐步近似（Ritter, 2017）：
 
 $$
-r_{t+1} = p_{t+1} y_{t+1} - c\,\lvert\Delta p\rvert - \frac{\lambda}{2}\,\big(p_{t+1} y_{t+1}\big)^2, \tag{2}
+r_{t+1} = p_{t+1} y_{t+1} - c\,\lvert\Delta p\rvert - \frac{\lambda}{2}\,\big(p_{t+1} y_{t+1}\big)^2, 
 $$
 
 二次惩罚项使期望奖励 ≈ $\mathbb{E}[\text{pnl}] - \frac{\lambda}{2}\mathbb{E}[\text{pnl}^2]$，与最大化夏普比同向。

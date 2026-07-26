@@ -13,7 +13,7 @@
 **DPG 定理**（Silver et al., 2014）：
 
 $$
-\nabla_\theta J = \mathbb{E}_{s\sim d^{\mu}}\Big[\nabla_\theta \mu_\theta(s)\, \nabla_a Q^\mu(s,a)\big|_{a=\mu_\theta(s)}\Big]. \tag{1}
+\nabla_\theta J = \mathbb{E}_{s\sim d^{\mu}}\Big[\nabla_\theta \mu_\theta(s)\, \nabla_a Q^\mu(s,a)\big|_{a=\mu_\theta(s)}\Big]. 
 $$
 
 直觉：链式法则——"动作往哪边挪，Q 会变大？就把策略往那边挪"。与随机策略梯度（第 06 章）相比：
@@ -28,7 +28,7 @@ $$
 **Critic**（就是连续动作版 DQN，公式对照第 05 章 (1)）：
 
 $$
-\mathcal{L}(\phi) = \mathbb{E}_{\mathcal{D}}\Big[\big(r + \gamma\, Q_{\phi^-}(s', \mu_{\theta^-}(s')) - Q_\phi(s,a)\big)^2\Big]. \tag{2}
+\mathcal{L}(\phi) = \mathbb{E}_{\mathcal{D}}\Big[\big(r + \gamma\, Q_{\phi^-}(s', \mu_{\theta^-}(s')) - Q_\phi(s,a)\big)^2\Big]. 
 $$
 
 **Actor**（公式 (1) 的采样版，PyTorch 里就是 `-Q(s, mu(s)).mean()` 反向传播）：
@@ -46,7 +46,7 @@ $$
 **① Clipped Double Q**：两个 Critic，目标取小：
 
 $$
-y = r + \gamma \min_{j=1,2} Q_{\phi_j^-}\big(s',\, \tilde a'\big). \tag{3}
+y = r + \gamma \min_{j=1,2} Q_{\phi_j^-}\big(s',\, \tilde a'\big). 
 $$
 
 与 Double DQN 的"解耦选择/评估"不同，取 min 直接制造**悲观**估计——宁可低估不要高估（低估不会被 Actor 放大，高估会）。
@@ -66,7 +66,7 @@ $$
 ### 4.1 换目标函数
 
 $$
-J(\pi) = \mathbb{E}\Big[\sum_t \gamma^t\big(r_{t+1} + \alpha\,\mathcal{H}(\pi(\cdot\mid s_t))\big)\Big]. \tag{4}
+J(\pi) = \mathbb{E}\Big[\sum_t \gamma^t\big(r_{t+1} + \alpha\,\mathcal{H}(\pi(\cdot\mid s_t))\big)\Big]. 
 $$
 
 不是"顺便加个熵正则"，而是**改了优化的问题本身**：在拿奖励的同时保持尽可能随机。好处：探索内生、对超参鲁棒、学到多模态解（两条路一样好就都保留，环境变化时切换成本低）。
@@ -75,7 +75,7 @@ $$
 
 $$
 Q^\pi(s,a) = r + \gamma\,\mathbb{E}_{s'}\big[V^\pi(s')\big], \qquad
-V^\pi(s) = \mathbb{E}_{a\sim\pi}\big[Q^\pi(s,a) - \alpha\log\pi(a\mid s)\big]. \tag{5}
+V^\pi(s) = \mathbb{E}_{a\sim\pi}\big[Q^\pi(s,a) - \alpha\log\pi(a\mid s)\big]. 
 $$
 
 （把熵 $\mathcal{H} = -\mathbb{E}\log\pi$ 摊进 V 的定义即可。）软策略评估算子仍是 $\gamma$-压缩——第 01 章的机器完全复用。
@@ -83,7 +83,7 @@ $$
 **策略改进**：固定 Q，最小化
 
 $$
-\pi_{\text{new}} = \arg\min_{\pi'} D_{\mathrm{KL}}\!\left(\pi'(\cdot\mid s)\,\Big\|\,\frac{\exp(Q(s,\cdot)/\alpha)}{Z(s)}\right), \tag{6}
+\pi_{\text{new}} = \arg\min_{\pi'} D_{\mathrm{KL}}\!\left(\pi'(\cdot\mid s)\,\Big\|\,\frac{\exp(Q(s,\cdot)/\alpha)}{Z(s)}\right), 
 $$
 
 即把策略往"Q 的 Boltzmann 分布"上投影。可证明软策略迭代单调改进并收敛到最大熵最优策略（表格情形）。

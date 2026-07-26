@@ -11,7 +11,7 @@
 按 $\pi$ 采样完整回合，对每个状态取实际回报的平均：
 
 $$
-V(s_t) \leftarrow V(s_t) + \alpha\big[\underbrace{G_t}_{\text{目标}} - V(s_t)\big], \qquad G_t = \sum_{k=0}^{T-t-1}\gamma^k r_{t+k+1}. \tag{1}
+V(s_t) \leftarrow V(s_t) + \alpha\big[\underbrace{G_t}_{\text{目标}} - V(s_t)\big], \qquad G_t = \sum_{k=0}^{T-t-1}\gamma^k r_{t+k+1}. 
 $$
 
 - **无偏**：$\mathbb{E}_\pi[G_t \mid s_t = s] = V^\pi(s)$，这是定义本身。
@@ -25,7 +25,7 @@ $$
 把 (1) 中的目标 $G_t$ 换成**自举目标** $r_{t+1} + \gamma V(s_{t+1})$：
 
 $$
-V(s_t) \leftarrow V(s_t) + \alpha\big[\underbrace{r_{t+1} + \gamma V(s_{t+1})}_{\text{TD 目标}} - V(s_t)\big]. \tag{2}
+V(s_t) \leftarrow V(s_t) + \alpha\big[\underbrace{r_{t+1} + \gamma V(s_{t+1})}_{\text{TD 目标}} - V(s_t)\big]. 
 $$
 
 方括号里的量就是 **TD 误差** $\delta_t = r_{t+1} + \gamma V(s_{t+1}) - V(s_t)$。

@@ -11,7 +11,7 @@
 参数化 $Q_\phi$，把 Q-learning 更新改写成对损失
 
 $$
-\mathcal{L}(\phi) = \mathbb{E}_{(s,a,r,s')\sim\mathcal{D}}\Big[\big(\underbrace{r + \gamma \max_{a'} Q_{\phi^-}(s',a')}_{\text{TD 目标 } y} - Q_\phi(s,a)\big)^2\Big] \tag{1}
+\mathcal{L}(\phi) = \mathbb{E}_{(s,a,r,s')\sim\mathcal{D}}\Big[\big(\underbrace{r + \gamma \max_{a'} Q_{\phi^-}(s',a')}_{\text{TD 目标 } y} - Q_\phi(s,a)\big)^2\Big] 
 $$
 
 的随机梯度下降。注意目标 $y$ 里用的是**目标网络** $\phi^-$ 且**不回传梯度**（semi-gradient）：TD 目标被当作常数。
@@ -50,7 +50,7 @@ DQN 三者全占。它不是从理论上消除了发散，而是用两个工程�
 Double DQN（van Hasselt et al., 2016）复用现成的两套网络——在线网络选动作、目标网络评动作：
 
 $$
-y^{\text{DDQN}} = r + \gamma\, Q_{\phi^-}\big(s',\, \arg\max_{a'} Q_\phi(s',a')\big). \tag{2}
+y^{\text{DDQN}} = r + \gamma\, Q_{\phi^-}\big(s',\, \arg\max_{a'} Q_\phi(s',a')\big). 
 $$
 
 对比原始 DQN 的 $y = r + \gamma\, Q_{\phi^-}(s', \arg\max_{a'} Q_{\phi^-}(s',a'))$：只改了 argmax 的下标，一行代码，显著降低过估计。
@@ -60,7 +60,7 @@ $$
 把 Q 分解为**状态价值 + 优势**两条流：
 
 $$
-Q_\phi(s,a) = V_\eta(s) + \Big(A_\psi(s,a) - \frac{1}{|\mathcal{A}|}\sum_{a'} A_\psi(s,a')\Big). \tag{3}
+Q_\phi(s,a) = V_\eta(s) + \Big(A_\psi(s,a) - \frac{1}{|\mathcal{A}|}\sum_{a'} A_\psi(s,a')\Big). 
 $$
 
 **为什么减去均值**：不减的话 $(V, A)$ 不可辨识——$V+c, A-c$ 给出同一个 Q，训练目标欠定。减去均值强制 $\sum_a A = 0$，分解唯一。（原文用 max 归一化，均值版更稳定，是通行实现。）
@@ -72,13 +72,13 @@ $$
 均匀采样对"惊讶"的转移（$|\delta|$ 大）不公平。PER 按优先级采样：
 
 $$
-P(i) = \frac{p_i^\alpha}{\sum_k p_k^\alpha}, \qquad p_i = |\delta_i| + \epsilon. \tag{4}
+P(i) = \frac{p_i^\alpha}{\sum_k p_k^\alpha}, \qquad p_i = |\delta_i| + \epsilon. 
 $$
 
 **代价**：改变了采样分布，(1) 的期望被扭曲。**修正**：重要性采样权重
 
 $$
-w_i = \left(\frac{1}{N\, P(i)}\right)^\beta \Big/ \max_j w_j, \tag{5}
+w_i = \left(\frac{1}{N\, P(i)}\right)^\beta \Big/ \max_j w_j, 
 $$
 
 $\beta$ 从初值线性退火到 1（训练后期需要无偏；前期允许些许偏差换取速度）。损失变为 $\frac{1}{B}\sum_i w_i\, \delta_i^2$。

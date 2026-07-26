@@ -32,7 +32,7 @@ $$
 折扣回报：
 
 $$
-G_t = r_{t+1} + \gamma r_{t+2} + \gamma^2 r_{t+3} + \cdots = \sum_{k=0}^{\infty} \gamma^k r_{t+k+1}. \tag{1}
+G_t = r_{t+1} + \gamma r_{t+2} + \gamma^2 r_{t+3} + \cdots = \sum_{k=0}^{\infty} \gamma^k r_{t+k+1}. 
 $$
 
 由 $|r|\le R_{\max}$ 与 $\gamma<1$，级数绝对收敛且 $|G_t| \le \frac{R_{\max}}{1-\gamma}$，一切期望都良定义。
@@ -41,14 +41,14 @@ $$
 
 $$
 V^\pi(s) = \mathbb{E}_\pi\!\left[G_t \mid s_t = s\right], \qquad
-Q^\pi(s,a) = \mathbb{E}_\pi\!\left[G_t \mid s_t = s, a_t = a\right]. \tag{2}
+Q^\pi(s,a) = \mathbb{E}_\pi\!\left[G_t \mid s_t = s, a_t = a\right]. 
 $$
 
 两者的互相表示（第一组恒等式，后面反复用）：
 
 $$
 V^\pi(s) = \sum_a \pi(a\mid s)\, Q^\pi(s,a), \qquad
-Q^\pi(s,a) = R(s,a) + \gamma \sum_{s'} P(s'\mid s,a)\, V^\pi(s'). \tag{3}
+Q^\pi(s,a) = R(s,a) + \gamma \sum_{s'} P(s'\mid s,a)\, V^\pi(s'). 
 $$
 
 ## 3. 贝尔曼期望方程
@@ -56,7 +56,7 @@ $$
 把 (3) 的两条互相代入，得到 $V^\pi$ 关于自身的方程：
 
 $$
-\boxed{\,V^\pi(s) = \sum_a \pi(a\mid s)\left[R(s,a) + \gamma \sum_{s'} P(s'\mid s,a)\, V^\pi(s')\right]\,} \tag{4}
+\boxed{\,V^\pi(s) = \sum_a \pi(a\mid s)\left[R(s,a) + \gamma \sum_{s'} P(s'\mid s,a)\, V^\pi(s')\right]\,} 
 $$
 
 **推导**（只用了回报的递归结构 $G_t = r_{t+1} + \gamma G_{t+1}$ 和全期望公式）：
@@ -83,7 +83,7 @@ $$
 则 (4) 写成 $V^\pi = R^\pi + \gamma P^\pi V^\pi$，从而
 
 $$
-\boxed{\,V^\pi = (I - \gamma P^\pi)^{-1} R^\pi\,} \tag{5}
+\boxed{\,V^\pi = (I - \gamma P^\pi)^{-1} R^\pi\,} 
 $$
 
 **可逆性证明**：$P^\pi$ 是随机矩阵，谱半径 $\rho(P^\pi) \le \|P^\pi\|_\infty = 1$，故 $\gamma P^\pi$ 的谱半径 $\le \gamma < 1$，$I - \gamma P^\pi$ 的特征值都不为 0，可逆。这就是说：**给定策略，价值函数是唯一确定的**——它就是解一个线性方程组。`gridworld.py` 的 demo 会直接用 (5) 算出精确的 $V^\pi$。
@@ -93,11 +93,11 @@ $$
 最优价值函数定义为 $V^*(s) = \max_\pi V^\pi(s)$（逐状态取最大；可以证明存在一个策略同时在所有状态达到最大）。它满足：
 
 $$
-\boxed{\,V^*(s) = \max_a \left[R(s,a) + \gamma \sum_{s'} P(s'\mid s,a)\, V^*(s')\right]\,} \tag{6}
+\boxed{\,V^*(s) = \max_a \left[R(s,a) + \gamma \sum_{s'} P(s'\mid s,a)\, V^*(s')\right]\,} 
 $$
 
 $$
-Q^*(s,a) = R(s,a) + \gamma \sum_{s'} P(s'\mid s,a) \max_{a'} Q^*(s',a'). \tag{7}
+Q^*(s,a) = R(s,a) + \gamma \sum_{s'} P(s'\mid s,a) \max_{a'} Q^*(s',a'). 
 $$
 
 与 (4) 的唯一区别：对动作的**加权平均**换成了**取最大**。这一个 max 让方程从线性变成非线性——不能再用矩阵求逆，必须迭代求解（第 02 章）。
@@ -115,7 +115,7 @@ $$
 **定理**：$\mathcal{T}^*$ 在无穷范数下是 $\gamma$-压缩：对任意 $U, V$，
 
 $$
-\|\mathcal{T}^* U - \mathcal{T}^* V\|_\infty \le \gamma \|U - V\|_\infty. \tag{8}
+\|\mathcal{T}^* U - \mathcal{T}^* V\|_\infty \le \gamma \|U - V\|_\infty. 
 $$
 
 **证明**：对任意 $s$，不妨设 $(\mathcal{T}^*U)(s) \ge (\mathcal{T}^*V)(s)$，取 $a_U = \arg\max_a [R(s,a) + \gamma\sum_{s'}P(s'\mid s,a)U(s')]$，则

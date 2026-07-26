@@ -11,7 +11,7 @@
 一切的起点。对任意两个策略 $\pi', \pi$：
 
 $$
-J(\pi') - J(\pi) = \frac{1}{1-\gamma}\,\mathbb{E}_{s\sim d^{\pi'}}\mathbb{E}_{a\sim\pi'}\big[A^\pi(s,a)\big]. \tag{1}
+J(\pi') - J(\pi) = \frac{1}{1-\gamma}\,\mathbb{E}_{s\sim d^{\pi'}}\mathbb{E}_{a\sim\pi'}\big[A^\pi(s,a)\big]. 
 $$
 
 **证明**：由 $A^\pi(s,a) = \mathbb{E}[r + \gamma V^\pi(s') \mid s,a] - V^\pi(s)$，对 $\pi'$ 的轨迹逐时刻求和：
@@ -30,13 +30,13 @@ $$
 **近似**：用旧分布 $d^{\pi}$ 替换 $d^{\pi'}$（这是本章唯一的近似！），再用重要性采样把动作期望改写到旧策略上：
 
 $$
-L_\pi(\pi') = \frac{1}{1-\gamma}\,\mathbb{E}_{s\sim d^{\pi}}\mathbb{E}_{a\sim\pi}\left[\frac{\pi'(a\mid s)}{\pi(a\mid s)}A^\pi(s,a)\right]. \tag{2}
+L_\pi(\pi') = \frac{1}{1-\gamma}\,\mathbb{E}_{s\sim d^{\pi}}\mathbb{E}_{a\sim\pi}\left[\frac{\pi'(a\mid s)}{\pi(a\mid s)}A^\pi(s,a)\right]. 
 $$
 
 **TRPO 定理**（Schulman et al., 2015；Achiam 版形式）：
 
 $$
-J(\pi') - J(\pi) \;\ge\; L_\pi(\pi') - C\,\sqrt{\mathbb{E}_{s\sim d^\pi}\big[D_{\mathrm{KL}}(\pi\|\pi')[s]\big]}, \qquad C \propto \frac{\gamma\,\max|A^\pi|}{(1-\gamma)^2}. \tag{3}
+J(\pi') - J(\pi) \;\ge\; L_\pi(\pi') - C\,\sqrt{\mathbb{E}_{s\sim d^\pi}\big[D_{\mathrm{KL}}(\pi\|\pi')[s]\big]}, \qquad C \propto \frac{\gamma\,\max|A^\pi|}{(1-\gamma)^2}. 
 $$
 
 **解读**：只要 KL 足够小，最大化替代目标 (2) 就**保证真实性能单调不降**（右边 ≥ 0 时）。这是"每次更新都不许变差"的数学承诺——minorize-maximize（MM）算法的 RL 版本。
@@ -54,7 +54,7 @@ $$
 TRPO 太重（二阶、共轭梯度、线搜索）。PPO-clip 用一阶方法达到同样效果。记 $\rho_t(\theta) = \frac{\pi_\theta(a_t\mid s_t)}{\pi_{\theta_\text{old}}(a_t\mid s_t)}$：
 
 $$
-\boxed{\;L^{\text{CLIP}}(\theta) = \mathbb{E}_t\Big[\min\big(\rho_t \hat A_t,\;\ \text{clip}(\rho_t,\, 1-\epsilon,\, 1+\epsilon)\, \hat A_t\big)\Big]\;} \tag{4}
+\boxed{\;L^{\text{CLIP}}(\theta) = \mathbb{E}_t\Big[\min\big(\rho_t \hat A_t,\;\ \text{clip}(\rho_t,\, 1-\epsilon,\, 1+\epsilon)\, \hat A_t\big)\Big]\;} 
 $$
 
 **逐情形分析**（理解 PPO 只需要这张表）：

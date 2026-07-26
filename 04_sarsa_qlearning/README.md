@@ -23,7 +23,7 @@ $$
 用五元组 $(s_t, a_t, r_{t+1}, s_{t+1}, a_{t+1})$ 更新——名字由此而来：
 
 $$
-Q(s_t,a_t) \leftarrow Q(s_t,a_t) + \alpha\big[r_{t+1} + \gamma\, Q(s_{t+1}, a_{t+1}) - Q(s_t,a_t)\big]. \tag{1}
+Q(s_t,a_t) \leftarrow Q(s_t,a_t) + \alpha\big[r_{t+1} + \gamma\, Q(s_{t+1}, a_{t+1}) - Q(s_t,a_t)\big]. 
 $$
 
 关键：$a_{t+1}$ 是**行为策略实际采出的动作**（含探索）。SARSA 学的是 $Q^{\pi_\varepsilon}$——"带着探索噪声行动的自己"的价值。它是贝尔曼**期望**方程（对 $\pi_\varepsilon$）的随机逼近。
@@ -31,7 +31,7 @@ $$
 ## 4. Q-learning（off-policy TD 控制）
 
 $$
-Q(s_t,a_t) \leftarrow Q(s_t,a_t) + \alpha\big[r_{t+1} + \gamma \max_{a'} Q(s_{t+1}, a') - Q(s_t,a_t)\big]. \tag{2}
+Q(s_t,a_t) \leftarrow Q(s_t,a_t) + \alpha\big[r_{t+1} + \gamma \max_{a'} Q(s_{t+1}, a') - Q(s_t,a_t)\big]. 
 $$
 
 目标里的 $\max_{a'}$ 与实际执行的下一动作无关——Q-learning 直接逼近 $Q^*$（贝尔曼**最优**方程的随机逼近），**无论行为策略是什么**（只要保持充分探索）。这就是 off-policy：学习的目标策略（贪心）≠ 采数据的行为策略（ε-greedy）。off-policy 能力是经验回放（第 05 章 DQN）的前提：回放池里的旧数据来自旧策略，on-policy 方法不能直接用。
@@ -59,7 +59,7 @@ $$
 **Double Q-learning**（van Hasselt, 2010）：维护两套独立估计 $Q_1, Q_2$，每次等概率更新其一，用一套**选**动作、另一套**评**动作：
 
 $$
-Q_1(s,a) \leftarrow Q_1(s,a) + \alpha\Big[r + \gamma\, Q_2\big(s',\, \arg\max_{a'} Q_1(s',a')\big) - Q_1(s,a)\Big], \tag{3}
+Q_1(s,a) \leftarrow Q_1(s,a) + \alpha\Big[r + \gamma\, Q_2\big(s',\, \arg\max_{a'} Q_1(s',a')\big) - Q_1(s,a)\Big], 
 $$
 
 （更新 $Q_2$ 时对称交换）。因为 $Q_2$ 的估计噪声与 $Q_1$ 的 argmax 选择近似独立，条件期望 $\mathbb{E}\big[Q_2(s',a_1^*)\big] \approx Q^{\text{真}}(s',a_1^*)$，不再有系统性向上的偏。代价：$Q_2$ 评估的是"$Q_1$ 认为最好的动作"，可能引入轻微**低估**——但低估通常无害（不会像高估那样自我放大，见第 05 章 3.2 节）。

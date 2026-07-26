@@ -26,13 +26,13 @@
 人类不擅长打绝对分，擅长**二选一**。对偏好对 $(x, y_w \succ y_l)$，Bradley-Terry 模型假设
 
 $$
-\Pr(y_w \succ y_l \mid x) = \frac{e^{r(x,y_w)}}{e^{r(x,y_w)} + e^{r(x,y_l)}} = \sigma\big(r(x,y_w) - r(x,y_l)\big). \tag{1}
+\Pr(y_w \succ y_l \mid x) = \frac{e^{r(x,y_w)}}{e^{r(x,y_w)} + e^{r(x,y_l)}} = \sigma\big(r(x,y_w) - r(x,y_l)\big). 
 $$
 
 用最大似然训练奖励模型 $r_\psi$：
 
 $$
-\mathcal{L}_{\text{RM}}(\psi) = -\mathbb{E}_{(x,y_w,y_l)}\Big[\log\sigma\big(r_\psi(x,y_w) - r_\psi(x,y_l)\big)\Big]. \tag{2}
+\mathcal{L}_{\text{RM}}(\psi) = -\mathbb{E}_{(x,y_w,y_l)}\Big[\log\sigma\big(r_\psi(x,y_w) - r_\psi(x,y_l)\big)\Big]. 
 $$
 
 注意 (1) 只依赖**奖励差**——BT 模型对 $r \to r + c(x)$ 不变，这个规范自由度后面 DPO 会用到。
@@ -42,7 +42,7 @@ $$
 直接最大化 $r_\psi$ 会**reward hacking**：策略钻奖励模型的漏洞（重复、空话、格式攻击），生成分布跑出 $r_\psi$ 的训练分布后其打分毫无意义。因此加 KL 锚：
 
 $$
-\max_{\pi_\theta}\; \mathbb{E}_{x\sim\mathcal{D},\, y\sim\pi_\theta(\cdot\mid x)}\Big[r_\psi(x,y)\Big] - \beta\, D_{\mathrm{KL}}\big(\pi_\theta(\cdot\mid x)\,\|\,\pi_{\text{ref}}(\cdot\mid x)\big). \tag{3}
+\max_{\pi_\theta}\; \mathbb{E}_{x\sim\mathcal{D},\, y\sim\pi_\theta(\cdot\mid x)}\Big[r_\psi(x,y)\Big] - \beta\, D_{\mathrm{KL}}\big(\pi_\theta(\cdot\mid x)\,\|\,\pi_{\text{ref}}(\cdot\mid x)\big). 
 $$
 
 ### 2.3 用 PPO 优化 (3)
@@ -56,7 +56,7 @@ $$
 **定理**：目标 (3) 的最优策略为
 
 $$
-\pi^*(y\mid x) = \frac{1}{Z(x)}\,\pi_{\text{ref}}(y\mid x)\, e^{r(x,y)/\beta}, \qquad Z(x) = \sum_y \pi_{\text{ref}}(y\mid x)\, e^{r(x,y)/\beta}. \tag{4}
+\pi^*(y\mid x) = \frac{1}{Z(x)}\,\pi_{\text{ref}}(y\mid x)\, e^{r(x,y)/\beta}, \qquad Z(x) = \sum_y \pi_{\text{ref}}(y\mid x)\, e^{r(x,y)/\beta}. 
 $$
 
 **证明**：把 (3) 对固定 $x$ 展开并除以 $\beta$：
@@ -75,7 +75,7 @@ $$
 (4) 两边取 log 反解出 $r$：
 
 $$
-r(x,y) = \beta\log\frac{\pi^*(y\mid x)}{\pi_{\text{ref}}(y\mid x)} + \beta\log Z(x). \tag{5}
+r(x,y) = \beta\log\frac{\pi^*(y\mid x)}{\pi_{\text{ref}}(y\mid x)} + \beta\log Z(x). 
 $$
 
 代入 BT 模型 (1)——**配分函数 $Z(x)$ 在奖励差中相消**（就是 2.1 说的规范自由度）：
@@ -87,7 +87,7 @@ $$
 于是**用策略自己参数化奖励**，直接对偏好数据做最大似然：
 
 $$
-\boxed{\;\mathcal{L}_{\text{DPO}}(\theta) = -\mathbb{E}_{(x,y_w,y_l)}\Big[\log\sigma\Big(\beta\log\tfrac{\pi_\theta(y_w\mid x)}{\pi_{\text{ref}}(y_w\mid x)} - \beta\log\tfrac{\pi_\theta(y_l\mid x)}{\pi_{\text{ref}}(y_l\mid x)}\Big)\Big]\;} \tag{6}
+\boxed{\;\mathcal{L}_{\text{DPO}}(\theta) = -\mathbb{E}_{(x,y_w,y_l)}\Big[\log\sigma\Big(\beta\log\tfrac{\pi_\theta(y_w\mid x)}{\pi_{\text{ref}}(y_w\mid x)} - \beta\log\tfrac{\pi_\theta(y_l\mid x)}{\pi_{\text{ref}}(y_l\mid x)}\Big)\Big]\;} 
 $$
 
 **你的语言模型秘密地是个奖励模型**（DPO 论文标题的含义）。不需要奖励模型、不需要采样、不需要价值网络——RL 问题变成了一个 logistic 回归。
@@ -111,13 +111,13 @@ PPO 需要价值网络提供基线（第 06 章公式 (4)）。GRPO 的观察：
 对 prompt $x$ 采 $G$ 条回答 $\{y_i\}$，各得奖励 $\{r_i\}$，组内标准化优势：
 
 $$
-\hat A_i = \frac{r_i - \text{mean}(r_1,\dots,r_G)}{\text{std}(r_1,\dots,r_G)}. \tag{7}
+\hat A_i = \frac{r_i - \text{mean}(r_1,\dots,r_G)}{\text{std}(r_1,\dots,r_G)}. 
 $$
 
 目标（PPO-clip 的形式 + 显式 KL 正则，序列内所有 token 共享 $\hat A_i$）：
 
 $$
-\mathcal{L}_{\text{GRPO}} = -\mathbb{E}\Big[\frac{1}{G}\sum_{i=1}^G \frac{1}{|y_i|}\sum_t \min\big(\rho_{i,t}\hat A_i,\; \text{clip}(\rho_{i,t}, 1\pm\epsilon)\hat A_i\big) - \beta\, D_{\mathrm{KL}}\big[\pi_\theta \| \pi_{\text{ref}}\big]\Big]. \tag{8}
+\mathcal{L}_{\text{GRPO}} = -\mathbb{E}\Big[\frac{1}{G}\sum_{i=1}^G \frac{1}{|y_i|}\sum_t \min\big(\rho_{i,t}\hat A_i,\; \text{clip}(\rho_{i,t}, 1\pm\epsilon)\hat A_i\big) - \beta\, D_{\mathrm{KL}}\big[\pi_\theta \| \pi_{\text{ref}}\big]\Big]. 
 $$
 
 **为什么合理**：组内均值正是 $V^{\pi}(x)$ 的蒙特卡洛估计（同一状态采多动作），(7) 就是第 06 章"基线不引入偏差"的直接应用（严格说除以 std 引入轻微偏差，实践无碍）。**收益**：少一个价值网络（显存减半）、没有价值函数学不准的问题。**适用前提**：能对同一 prompt 廉价多次采样 + 奖励可自动计算（数学答案对错、代码过不过测试）——这正是推理训练的设定。
