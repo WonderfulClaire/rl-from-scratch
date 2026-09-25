@@ -84,7 +84,7 @@ r_t=\mathbf 1_{t=T}R(x,y)-\beta\left[\log\pi_{\mathrm{old}}(y_t\mid s_t)-\log\pi
 PPO 最大化采样平均（写成 loss 时取负号）：
 
 ```math
-J_{\mathrm{clip}}=\widehat{\mathbb E}_t\left[\min\left(\rho_t\hat A_t,\operatorname{clip}(\rho_t,1-\epsilon,1+\epsilon)\hat A_t\right)\right],\quad\epsilon>0.
+J_{\mathrm{clip}}=\mathbb{E}_t\left[\min\left(\rho_t\hat A_t,\operatorname{clip}(\rho_t,1-\epsilon,1+\epsilon)\hat A_t\right)\right],\quad\epsilon>0.
 ```
 
 取 $`\epsilon=0.2`$：
@@ -116,7 +116,7 @@ clip 不是把所有概率强制锁在区间内，也不是对真实回报的单
 令 $`T_i`$ 为回答长度，$`\rho_{i,t}`$ 为当前/旧策略 token 比值，$`k_{i,t}`$ 为下一节的 KL 项。原始结果监督形式先在每条回答内平均，再对组平均：
 
 ```math
-J_{\mathrm{GRPO}}=\widehat{\mathbb E}_{x,\{y_i\}\sim\pi_{\mathrm{old}}}
+J_{\mathrm{GRPO}}=\mathbb{E}_{x,\{y_i\}\sim\pi_{\mathrm{old}}}
 \left[\frac1G\sum_{i=1}^G\frac1{T_i}\sum_{t=1}^{T_i}
 \left\{\min\left(\rho_{i,t}\hat A_i,\operatorname{clip}(\rho_{i,t},1-\epsilon,1+\epsilon)\hat A_i\right)-\beta k_{i,t}\right\}\right].
 ```
@@ -134,11 +134,11 @@ J_{\mathrm{GRPO}}=\widehat{\mathbb E}_{x,\{y_i\}\sim\pi_{\mathrm{old}}}
 以下是本章有限样本推导。对固定提示词，假设 $`G`$ 个回答独立同分布，奖励不显式依赖参数，采样策略就是求梯度的策略。令 $`g_i=\nabla_\theta\log\pi_\theta(y_i\mid x)`$。仅减组均值、不除标准差时：
 
 ```math
-\mathbb E\left[\frac1G\sum_i(R_i-\bar R)g_i\right]
-=\left(1-\frac1G\right)\mathbb E[Rg].
+\mathbb{E}\left[\frac1G\sum_i(R_i-\bar R)g_i\right]
+=\left(1-\frac1G\right)\mathbb{E}[Rg].
 ```
 
-因为 $`\mathbb E[g_i]=0`$，不同样本的交叉项为零，而均值包含自身奖励 $`R_i/G`$。动作独立基线的无偏结论不能原样套用。leave-one-out 均值可去掉这里的缩放；再除随机标准差、做长度归一化或 clip 后，仍不能据此宣称整个 GRPO 估计无偏。
+因为 $`\mathbb{E}[g_i]=0`$，不同样本的交叉项为零，而均值包含自身奖励 $`R_i/G`$。动作独立基线的无偏结论不能原样套用。leave-one-out 均值可去掉这里的缩放；再除随机标准差、做长度归一化或 clip 后，仍不能据此宣称整个 GRPO 估计无偏。
 
 ## 5. KL：方向、采样分布与归一化
 
@@ -151,10 +151,10 @@ D_{\mathrm{KL}}(p\|q)=\sum_a p(a)\log\frac{p(a)}{q(a)}.
 若 $`a\sim p`$，$`k_1=\log(p(a)/q(a))`$ 的期望为该 KL，但单点可为负。令 $`u=q(a)/p(a)`$，则
 
 ```math
-k_3=u-\log u-1\ge0,\qquad\mathbb E_{a\sim p}[k_3]=D_{\mathrm{KL}}(p\|q).
+k_3=u-\log u-1\ge0,\qquad\mathbb{E}_{a\sim p}[k_3]=D_{\mathrm{KL}}(p\|q).
 ```
 
-等式来自 $`\mathbb E_p[u]=1`$；非负性来自 $`\log u\le u-1`$。演示用小型离散分布枚举核验。若样本来自不同 old 分布，未经校正的平均不再自动等于当前策略 KL。数值估计无偏也不等于在固定旧样本上直接反向，就获得原期望的完整梯度；还需分析采样分布随参数变化的项。
+等式来自 $`\mathbb{E}_p[u]=1`$；非负性来自 $`\log u\le u-1`$。演示用小型离散分布枚举核验。若样本来自不同 old 分布，未经校正的平均不再自动等于当前策略 KL。数值估计无偏也不等于在固定旧样本上直接反向，就获得原期望的完整梯度；还需分析采样分布随参数变化的项。
 
 序列 log 比值是 token log 比值之和；序列 KL 还要对生成的前缀分布取期望。报告须注明整条回答总和、每回答 token 均值还是全批 token 均值。old 比值用于本轮更新，ref KL 用于参考分布约束；二者不能互相替代，KL 也不保证事实正确。
 
@@ -180,7 +180,7 @@ RLHF 描述反馈来源，PPO、GRPO 描述优化方法。可验证奖励是否�
 固定 $`x`$、固定奖励 $`R`$、$`\beta>0`$，考虑完整回答分布目标：
 
 ```math
-F(\pi)=\mathbb E_{y\sim\pi}[R(x,y)]-\beta D_{\mathrm{KL}}(\pi\|\pi_{\mathrm{ref}}).
+F(\pi)=\mathbb{E}_{y\sim\pi}[R(x,y)]-\beta D_{\mathrm{KL}}(\pi\|\pi_{\mathrm{ref}}).
 ```
 
 参考概率为正、配分函数有限时，定义
@@ -195,7 +195,7 @@ Z(x)=\sum_y\pi_{\mathrm{ref}}(y\mid x)e^{R(x,y)/\beta},\qquad
 反解 $`R=\beta\log(\pi^{\star}/\pi_{\mathrm{ref}})+\beta\log Z`$。Bradley–Terry 假设偏好概率为 $`\sigma(R_w-R_l)`$，同题的 $`\log Z`$ 在差中消去。用当前策略参数化，得到
 
 ```math
-\mathcal L_{\mathrm{DPO}}=-\mathbb E_{(x,y_w,y_l)}\log\sigma\left[
+\mathcal L_{\mathrm{DPO}}=-\mathbb{E}_{(x,y_w,y_l)}\log\sigma\left[
 \beta\log\frac{\pi_\theta(y_w\mid x)}{\pi_{\mathrm{ref}}(y_w\mid x)}
 -\beta\log\frac{\pi_\theta(y_l\mid x)}{\pi_{\mathrm{ref}}(y_l\mid x)}\right].
 ```
