@@ -19,14 +19,14 @@
 
 整条回答作为一个动作，可得到上下文 bandit 表述；逐 token 建模则是有限回合 MDP。工具反馈不能用“只追加 token 的确定性转移”概括，部分可观测任务还需要历史或其他状态表示。
 
-设提示词为 $x$，回答为 $y=(y_1,\ldots,y_T)$，长度 $T$ 包括实际生成的终止 token（若存在）。状态为 $s_t=(x,y_{<t})$，动作为 $y_t$，参数为 $\theta$：
+设提示词为 $`x`$，回答为 $`y=(y_1,\ldots,y_T)`$，长度 $`T`$ 包括实际生成的终止 token（若存在）。状态为 $`s_t=(x,y_{<t})`$，动作为 $`y_t`$，参数为 $`\theta`$：
 
-$$
+```math
 \pi_\theta(y\mid x)=\prod_{t=1}^T\pi_\theta(y_t\mid s_t),\qquad
 \log\pi_\theta(y\mid x)=\sum_{t=1}^T\log\pi_\theta(y_t\mid s_t).
-$$
+```
 
-策略损失只覆盖回答的有效 token。提示词是条件，padding 不是动作；EOS 与达到最大长度的截断需要分别记录。有限长度无折扣任务可取 $\gamma=1$，这是对全库无限时域折扣记号的局部扩展。
+策略损失只覆盖回答的有效 token。提示词是条件，padding 不是动作；EOS 与达到最大长度的截断需要分别记录。有限长度无折扣任务可取 $`\gamma=1`$，这是对全库无限时域折扣记号的局部扩展。
 
 ```mermaid
 flowchart LR
@@ -44,9 +44,9 @@ flowchart LR
 
 | 记号 | 身份 | 更新期间的作用 |
 |---|---|---|
-| $\pi_\theta$ | 当前可训练策略 | 计算已采样回答的 log probability，接收梯度 |
-| $\pi_{\mathrm{old}}$ | 本批数据的行为策略 | 提供冻结的采样概率；新一批 rollout 时刷新 |
-| $\pi_{\mathrm{ref}}$ | 参考策略 | 提供分布偏离的参照；通常在一个训练阶段内固定 |
+| $`\pi_\theta`$ | 当前可训练策略 | 计算已采样回答的 log probability，接收梯度 |
+| $`\pi_{\mathrm{old}}`$ | 本批数据的行为策略 | 提供冻结的采样概率；新一批 rollout 时刷新 |
+| $`\pi_{\mathrm{ref}}`$ | 参考策略 | 提供分布偏离的参照；通常在一个训练阶段内固定 |
 
 old 与 ref 可能初始相同，但用途不同。old 可以由已保存的 log probability 表示，不必另存完整模型。参考、奖励与价值模型的共享和卸载方式也影响显存，不能笼统说必须同时完整驻留四份模型。
 
@@ -56,20 +56,20 @@ old 与 ref 可能初始相同，但用途不同。old 可以由已保存的 log
 
 ### 3.1 优势回答“比预期好多少”
 
-设 $r_t$ 是生成 token 后的奖励，$V_\phi(s_t)$ 是价值模型预测的后续折扣回报。常见 PPO-RLHF 在终点加入标量回答奖励 $R(x,y)$，并以参考策略构造 token 级惩罚。在采样时冻结这些量：
+设 $`r_t`$ 是生成 token 后的奖励，$`V_\phi(s_t)`$ 是价值模型预测的后续折扣回报。常见 PPO-RLHF 在终点加入标量回答奖励 $`R(x,y)`$，并以参考策略构造 token 级惩罚。在采样时冻结这些量：
 
-$$
+```math
 r_t=\mathbf 1_{t=T}R(x,y)-\beta\left[\log\pi_{\mathrm{old}}(y_t\mid s_t)-\log\pi_{\mathrm{ref}}(y_t\mid s_t)\right],\qquad\beta\ge0.
-$$
+```
 
 单个 log 比值可能为负，并不是逐点非负的 KL。InstructGPT 使用参考 SFT 策略的 KL 惩罚，还研究了混合预训练目标；此处只讲 RL 主路径。[InstructGPT，§3.1、§3.5](https://arxiv.org/html/2203.02155v1)
 
 令真实终止状态价值为零，计算 TD 残差与广义优势估计（GAE）：
 
-$$
+```math
 \delta_t=r_t+\gamma V_\phi(s_{t+1})-V_\phi(s_t),\qquad
 \hat A_t=\sum_{l=0}^{T-t}(\gamma\lambda)^l\delta_{t+l},\quad 0\le\lambda\le1.
-$$
+```
 
 时间限制导致的截断是否 bootstrap 取决于任务定义，不能都当成真实终止。更新 actor 时优势停止梯度；critic 拟合相应回报目标。终局奖励相同不意味着各 token 的 GAE 相同，因为前缀价值预测不同。
 
@@ -77,17 +77,17 @@ $$
 
 冻结旧概率，在旧样本上计算：
 
-$$
+```math
 \rho_t(\theta)=\exp\left[\log\pi_\theta(y_t\mid s_t)-\log\pi_{\mathrm{old}}(y_t\mid s_t)\right].
-$$
+```
 
 PPO 最大化采样平均（写成 loss 时取负号）：
 
-$$
+```math
 J_{\mathrm{clip}}=\widehat{\mathbb E}_t\left[\min\left(\rho_t\hat A_t,\operatorname{clip}(\rho_t,1-\epsilon,1+\epsilon)\hat A_t\right)\right],\quad\epsilon>0.
-$$
+```
 
-取 $\epsilon=0.2$：
+取 $`\epsilon=0.2`$：
 
 | 优势 | 比值 | 未裁剪项 | 最终项 | 作用 |
 |---|---|---|---|---|
@@ -97,64 +97,64 @@ $$
 
 clip 不是把所有概率强制锁在区间内，也不是对真实回报的单调改进保证；它是未裁剪 surrogate 的逐样本下界。[PPO，§3、§5](https://arxiv.org/pdf/1707.06347)
 
-第一次更新前 $\rho=1$，**不意味着梯度为零**：分母冻结，分子仍可导。复用 rollout 做多次更新时，比值才可能进入裁剪区。监控比值、裁剪比例和相对 old 的 KL，才能知道裁剪是否实际发挥作用。
+第一次更新前 $`\rho=1`$，**不意味着梯度为零**：分母冻结，分子仍可导。复用 rollout 做多次更新时，比值才可能进入裁剪区。监控比值、裁剪比例和相对 old 的 KL，才能知道裁剪是否实际发挥作用。
 
 ## 4. GRPO：同题回答之间比较
 
 ### 4.1 从一个组算起
 
-给定同一 $x$，从 old 独立采样 $G\ge2$ 条回答 $y_i$，得奖励 $R_i$。本章数值演示采用总体标准差：
+给定同一 $`x`$，从 old 独立采样 $`G\ge2`$ 条回答 $`y_i`$，得奖励 $`R_i`$。本章数值演示采用总体标准差：
 
-$$
+```math
 \bar R=\frac1G\sum_iR_i,\qquad
 \sigma_R=\sqrt{\frac1G\sum_i(R_i-\bar R)^2},\qquad
 \hat A_i=\frac{R_i-\bar R}{\sigma_R+\eta},\quad\eta>0.
-$$
+```
 
-奖励 $[1,0,1,0]$ 的均值和标准差都是 $0.5$，优势近似 $[1,-1,1,-1]$。结果监督的 GRPO 将同一回答的优势分给所有有效 token；这不等于已经定位哪个推理步骤导致成功。
+奖励 $`[1,0,1,0]`$ 的均值和标准差都是 $`0.5`$，优势近似 $`[1,-1,1,-1]`$。结果监督的 GRPO 将同一回答的优势分给所有有效 token；这不等于已经定位哪个推理步骤导致成功。
 
-令 $T_i$ 为回答长度，$\rho_{i,t}$ 为当前/旧策略 token 比值，$k_{i,t}$ 为下一节的 KL 项。原始结果监督形式先在每条回答内平均，再对组平均：
+令 $`T_i`$ 为回答长度，$`\rho_{i,t}`$ 为当前/旧策略 token 比值，$`k_{i,t}`$ 为下一节的 KL 项。原始结果监督形式先在每条回答内平均，再对组平均：
 
-$$
+```math
 J_{\mathrm{GRPO}}=\widehat{\mathbb E}_{x,\{y_i\}\sim\pi_{\mathrm{old}}}
 \left[\frac1G\sum_{i=1}^G\frac1{T_i}\sum_{t=1}^{T_i}
 \left\{\min\left(\rho_{i,t}\hat A_i,\operatorname{clip}(\rho_{i,t},1-\epsilon,1+\epsilon)\hat A_i\right)-\beta k_{i,t}\right\}\right].
-$$
+```
 
 改成全批 token 平均会改变长短回答的相对权重，不是等价改写。去掉 critic 节省其开销，但组采样也消耗资源，不能直接推出总显存减半。GRPO 可用可验证奖励，也可用奖励模型；过程监督的优势定义不同。[DeepSeekMath，§4.1.1–4.1.3](https://arxiv.org/html/2402.03300v3#S4.SS1)
 
 ### 4.2 全对、全错与没有执行更新
 
-奖励全相同则优势全零；二元奖励下全对、全错均如此。$\eta$ 只避免除零，不创造区分信号。此时奖励 surrogate 梯度为零，但 KL 或辅助项仍可能产生梯度，不能直接说整个模型不更新。
+奖励全相同则优势全零；二元奖励下全对、全错均如此。$`\eta`$ 只避免除零，不创造区分信号。此时奖励 surrogate 梯度为零，但 KL 或辅助项仍可能产生梯度，不能直接说整个模型不更新。
 
 排查顺序：有效样本是否为空 → 奖励是否有组内差异 → actor 概率是否被错误 detach → loss 是否有计算图 → backward 与 optimizer.step 是否执行。重采样有差异的组可能提供信号，但会改变题目分布并增加成本，必须记录保留比例和采样预算。
 
 ### 4.3 组均值不能直接套“基线无偏”
 
-以下是本章有限样本推导。对固定提示词，假设 $G$ 个回答独立同分布，奖励不显式依赖参数，采样策略就是求梯度的策略。令 $g_i=\nabla_\theta\log\pi_\theta(y_i\mid x)$。仅减组均值、不除标准差时：
+以下是本章有限样本推导。对固定提示词，假设 $`G`$ 个回答独立同分布，奖励不显式依赖参数，采样策略就是求梯度的策略。令 $`g_i=\nabla_\theta\log\pi_\theta(y_i\mid x)`$。仅减组均值、不除标准差时：
 
-$$
+```math
 \mathbb E\left[\frac1G\sum_i(R_i-\bar R)g_i\right]
 =\left(1-\frac1G\right)\mathbb E[Rg].
-$$
+```
 
-因为 $\mathbb E[g_i]=0$，不同样本的交叉项为零，而均值包含自身奖励 $R_i/G$。动作独立基线的无偏结论不能原样套用。leave-one-out 均值可去掉这里的缩放；再除随机标准差、做长度归一化或 clip 后，仍不能据此宣称整个 GRPO 估计无偏。
+因为 $`\mathbb E[g_i]=0`$，不同样本的交叉项为零，而均值包含自身奖励 $`R_i/G`$。动作独立基线的无偏结论不能原样套用。leave-one-out 均值可去掉这里的缩放；再除随机标准差、做长度归一化或 clip 后，仍不能据此宣称整个 GRPO 估计无偏。
 
 ## 5. KL：方向、采样分布与归一化
 
-固定前缀 $s$，设当前分布 $p(a)=\pi_\theta(a\mid s)$、参考分布 $q(a)=\pi_{\mathrm{ref}}(a\mid s)$，假设共同支持且概率为正：
+固定前缀 $`s`$，设当前分布 $`p(a)=\pi_\theta(a\mid s)`$、参考分布 $`q(a)=\pi_{\mathrm{ref}}(a\mid s)`$，假设共同支持且概率为正：
 
-$$
+```math
 D_{\mathrm{KL}}(p\|q)=\sum_a p(a)\log\frac{p(a)}{q(a)}.
-$$
+```
 
-若 $a\sim p$，$k_1=\log(p(a)/q(a))$ 的期望为该 KL，但单点可为负。令 $u=q(a)/p(a)$，则
+若 $`a\sim p`$，$`k_1=\log(p(a)/q(a))`$ 的期望为该 KL，但单点可为负。令 $`u=q(a)/p(a)`$，则
 
-$$
+```math
 k_3=u-\log u-1\ge0,\qquad\mathbb E_{a\sim p}[k_3]=D_{\mathrm{KL}}(p\|q).
-$$
+```
 
-等式来自 $\mathbb E_p[u]=1$；非负性来自 $\log u\le u-1$。演示用小型离散分布枚举核验。若样本来自不同 old 分布，未经校正的平均不再自动等于当前策略 KL。数值估计无偏也不等于在固定旧样本上直接反向，就获得原期望的完整梯度；还需分析采样分布随参数变化的项。
+等式来自 $`\mathbb E_p[u]=1`$；非负性来自 $`\log u\le u-1`$。演示用小型离散分布枚举核验。若样本来自不同 old 分布，未经校正的平均不再自动等于当前策略 KL。数值估计无偏也不等于在固定旧样本上直接反向，就获得原期望的完整梯度；还需分析采样分布随参数变化的项。
 
 序列 log 比值是 token log 比值之和；序列 KL 还要对生成的前缀分布取期望。报告须注明整条回答总和、每回答 token 均值还是全批 token 均值。old 比值用于本轮更新，ref KL 用于参考分布约束；二者不能互相替代，KL 也不保证事实正确。
 
@@ -175,32 +175,32 @@ RLHF 描述反馈来源，PPO、GRPO 描述优化方法。可验证奖励是否�
 
 ## 7. DPO：偏好学习的另一条路线
 
-标准离线 DPO 使用固定偏好对 $(x,y_w,y_l)$，训练循环无需在线 rollout 或 critic；偏好数据的收集仍可能需要生成。
+标准离线 DPO 使用固定偏好对 $`(x,y_w,y_l)`$，训练循环无需在线 rollout 或 critic；偏好数据的收集仍可能需要生成。
 
-固定 $x$、固定奖励 $R$、$\beta>0$，考虑完整回答分布目标：
+固定 $`x`$、固定奖励 $`R`$、$`\beta>0`$，考虑完整回答分布目标：
 
-$$
+```math
 F(\pi)=\mathbb E_{y\sim\pi}[R(x,y)]-\beta D_{\mathrm{KL}}(\pi\|\pi_{\mathrm{ref}}).
-$$
+```
 
 参考概率为正、配分函数有限时，定义
 
-$$
+```math
 Z(x)=\sum_y\pi_{\mathrm{ref}}(y\mid x)e^{R(x,y)/\beta},\qquad
 \pi^{\star}(y\mid x)=\pi_{\mathrm{ref}}(y\mid x)e^{R(x,y)/\beta}/Z(x).
-$$
+```
 
-将 $\log\pi^{\star}=\log\pi_{\mathrm{ref}}+R/\beta-\log Z$ 代回，可得 $F(\pi)=\beta\log Z-\beta D_{\mathrm{KL}}(\pi\|\pi^{\star})$。因此最优完整分布为 $\pi^{\star}$；受限网络和有限数据不保证达到它。
+将 $`\log\pi^{\star}=\log\pi_{\mathrm{ref}}+R/\beta-\log Z`$ 代回，可得 $`F(\pi)=\beta\log Z-\beta D_{\mathrm{KL}}(\pi\|\pi^{\star})`$。因此最优完整分布为 $`\pi^{\star}`$；受限网络和有限数据不保证达到它。
 
-反解 $R=\beta\log(\pi^{\star}/\pi_{\mathrm{ref}})+\beta\log Z$。Bradley–Terry 假设偏好概率为 $\sigma(R_w-R_l)$，同题的 $\log Z$ 在差中消去。用当前策略参数化，得到
+反解 $`R=\beta\log(\pi^{\star}/\pi_{\mathrm{ref}})+\beta\log Z`$。Bradley–Terry 假设偏好概率为 $`\sigma(R_w-R_l)`$，同题的 $`\log Z`$ 在差中消去。用当前策略参数化，得到
 
-$$
+```math
 \mathcal L_{\mathrm{DPO}}=-\mathbb E_{(x,y_w,y_l)}\log\sigma\left[
 \beta\log\frac{\pi_\theta(y_w\mid x)}{\pi_{\mathrm{ref}}(y_w\mid x)}
 -\beta\log\frac{\pi_\theta(y_l\mid x)}{\pi_{\mathrm{ref}}(y_l\mid x)}\right].
-$$
+```
 
-$\sigma$ 是 logistic 函数。DPO 将偏好似然写成策略概率比，不等于 PPO，也不能据此判断谁在所有任务上更好。[DPO，§4、§5](https://arxiv.org/html/2305.18290v3)
+$`\sigma`$ 是 logistic 函数。DPO 将偏好似然写成策略概率比，不等于 PPO，也不能据此判断谁在所有任务上更好。[DPO，§4、§5](https://arxiv.org/html/2305.18290v3)
 
 ## 8. 代码真正覆盖了什么
 
