@@ -19,6 +19,16 @@
 
 </div>
 
+## 后训练专题：从环境 RL 走向语言模型
+
+[第 10 章](10_rlhf_dpo_grpo/README.md) 串起 token 级 MDP、PPO 与 GAE、GRPO 组内优势、KL 方向与采样分布、奖励设计及 DPO。附计算流程图、数值例子与自测，并逐项说明现有玩具实现的边界。
+
+```bash
+python 10_rlhf_dpo_grpo/mechanism_demo.py
+```
+
+无需额外依赖；检查裁剪梯度、同分组、KL 估计和有限样本基线，不训练模型。
+
 ---
 
 ## 💡 为什么做这个库？

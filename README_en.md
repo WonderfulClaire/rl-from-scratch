@@ -19,6 +19,16 @@
 
 </div>
 
+## Post-training: from environment RL to language models
+
+[Chapter 10 (Chinese)](10_rlhf_dpo_grpo/README.md) connects token-level MDPs, PPO/GAE, GRPO, KL sampling assumptions, reward design and DPO. It includes a computation diagram, worked examples and an explicit audit of the existing toy implementation.
+
+```bash
+python 10_rlhf_dpo_grpo/mechanism_demo.py
+```
+
+This dependency-free numerical demo checks clipping gradients, equal-reward groups, KL estimation and finite-sample baselines. It does not train a model.
+
 ---
 
 ## 💡 Why This Repository?
