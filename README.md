@@ -29,7 +29,7 @@
 >
 > **要么只给公式不给能跑的代码** —— 伪代码写得很漂亮，一实现就踩坑，学习曲线根本对不上。
 
-这个库把三件事钉在一起：**每一行代码都能对应到推导中的某个公式，每一个公式都能在实验里看到真实效果。**
+这个库把三件事钉在一起：通过推导、实现与实验记录共同学习强化学习；各章节的验证范围需要分别检查。
 
 11 章，从表格方法走到 RLHF 与量化交易，一条线走完现代强化学习的完整主干。
 
@@ -44,7 +44,7 @@
 表格方法用纯 NumPy 手写，深度 RL 仅用 PyTorch 基础算子——**不封装、不继承、不用 Stable-Baselines3 之类的黑盒**。每一行代码都能在推导里找到对应位置。
 
 ### 🧪 真实可复现的实验验证
-每个实现都在标准环境（Gymnasium）上跑通，学习曲线全部来自真实运行，固定种子可复现。**失败案例也如实呈现**（如第 11 章 DQN 在测试段跑输买入持有，正是回测陷阱的活体演示）。
+仓库提供标准环境与自定义环境的实现和已保存曲线；当前保存文件主要是跨种子聚合数组，完整逐种子复核仍需要原始轨迹与运行配置。**失败案例也如实呈现**（如第 11 章 DQN 在测试段跑输买入持有，正是回测陷阱的活体演示）。
 
 ### 📚 体系化的 11 章内容
 从 MDP 基础到 RLHF 对齐，从单智能体到多智能体，从离散控制到量化交易应用——不是零散算法堆砌，是一条完整的学习路径。
@@ -86,27 +86,29 @@
 
 ---
 
+> 核验说明：当前曲线文件只保存跨种子聚合数组。不同算法末点的步数不同，训练结束步数不等于首次达标步数；详见 [结果口径与已保存数据](results/RESULTS.md)。
+
 ## 📊 效果一览（real runs）
 
-> 以下曲线均来自本仓库代码真实运行，由 [`tools/benchmark.py`](tools/benchmark.py) 与 [`tools/mappo_curve.py`](tools/mappo_curve.py) 生成，**3 个随机种子的均值 ± 标准差**，横轴为真实环境步数。完整数字见 [results/RESULTS.md](results/RESULTS.md)。
+> 以下曲线均来自本仓库代码真实运行，由 [`tools/benchmark.py`](tools/benchmark.py) 与 [`tools/mappo_curve.py`](tools/mappo_curve.py) 生成，**3 个随机种子的均值 ± 标准差**，CartPole/Pendulum 横轴为环境步数，多智能体图横轴为训练迭代。统计口径与可核验数字见 [results/RESULTS.md](results/RESULTS.md)。
 
 ### CartPole-v1：四种主流算法同台对比
 
 ![CartPole learning curves](results/cartpole_curves.png)
 
-*REINFORCE / A2C / PPO / DQN 在同一任务上的样本效率对比——直观展示"为什么 PPO 是默认选择"。*
+*同一任务下四种实现的已保存训练曲线；各算法停止步数不同，不能按曲线末点直接排名。*
 
 ### Pendulum-v1：三种连续控制算法
 
 ![Pendulum learning curves](results/pendulum_curves.png)
 
-*DDPG / TD3 / SAC 的收敛速度与稳定性对比——TD3 与 SAC 明显比 DDPG 更稳。*
+*三种连续控制实现的已保存曲线；结论限于本任务和配置。*
 
 ### 多智能体（第 09 章）：MAPPO vs IPPO
 
 ![MAPPO vs IPPO learning curves](results/mappo_gridworld_curves.png)
 
-*Rendezvous 网格世界里，中心化 Critic（MAPPO）相比去中心化（IPPO）收敛更快、方差更小——多智能体里的经典结论。*
+*Rendezvous 网格任务中的 MAPPO 与 IPPO 聚合曲线，不作为跨任务优劣结论。*
 
 复现方式：
 
@@ -187,21 +189,6 @@ rl-from-scratch/
 - **只想查公式**：每章 README 的推导都是自包含的，可独立阅读。
 
 先扫一眼 [notation.md](notation.md) 的统一符号表，再配合 [papers.md](papers.md)——"README 推导 → 原论文动机 → 本库代码"三步闭环。
-
----
-
-## 🆚 为什么选这个库？
-
-| 特性 | 本仓库 | Stable-Baselines3 | Spinning Up | easy-rl |
-|------|:------:|:-----------------:|:-----------:|:-------:|
-| 完整数学推导 | ✅ | ❌ | ⚠️ 部分 | ⚠️ 部分 |
-| 从零可读实现 | ✅ | ❌ 高度封装 | ✅ | ✅ |
-| 可复现实验结果 | ✅ | ✅ | ✅ | ⚠️ |
-| 覆盖 RLHF / DPO / GRPO | ✅ | ❌ | ❌ | ❌ |
-| 覆盖量化交易应用 | ✅ | ❌ | ❌ | ❌ |
-| 中文推导与注释 | ✅ | ❌ | ❌ | ✅ |
-
-差异化定位：**RLHF/量化应用 + 中文完整推导** 的组合，在现有 RL 学习资源里少见。
 
 ---
 
