@@ -81,10 +81,20 @@ r_t=\mathbf 1_{t=T}R(x,y)-\beta\left[\log\pi_{\mathrm{old}}(y_t\mid s_t)-\log\pi
 \rho_t(\theta)=\exp\left[\log\pi_\theta(y_t\mid s_t)-\log\pi_{\mathrm{old}}(y_t\mid s_t)\right].
 ```
 
+为避免长公式遮住计算结构，先定义裁剪函数和单个样本项：
+
+```math
+C_\epsilon(\rho)=\min(\max(\rho,1-\epsilon),1+\epsilon),\quad \epsilon>0.
+```
+
+```math
+\ell(\rho,A)=\min(\rho A,C_\epsilon(\rho)A).
+```
+
 PPO 最大化采样平均（写成 loss 时取负号）：
 
 ```math
-J_{\mathrm{clip}}=\mathbb{E}_t\left[\min\left(\rho_t\hat A_t,\operatorname{clip}(\rho_t,1-\epsilon,1+\epsilon)\hat A_t\right)\right],\quad\epsilon>0.
+J_{\mathrm{clip}}=\mathbb{E}_t[\ell(\rho_t,\hat{A}_t)].
 ```
 
 取 $`\epsilon=0.2`$：
@@ -116,10 +126,10 @@ clip 不是把所有概率强制锁在区间内，也不是对真实回报的单
 令 $`T_i`$ 为回答长度，$`\rho_{i,t}`$ 为当前/旧策略 token 比值，$`k_{i,t}`$ 为下一节的 KL 项。原始结果监督形式先在每条回答内平均，再对组平均：
 
 ```math
-J_{\mathrm{GRPO}}=\mathbb{E}_{x,\{y_i\}\sim\pi_{\mathrm{old}}}
-\left[\frac1G\sum_{i=1}^G\frac1{T_i}\sum_{t=1}^{T_i}
-\left\{\min\left(\rho_{i,t}\hat A_i,\operatorname{clip}(\rho_{i,t},1-\epsilon,1+\epsilon)\hat A_i\right)-\beta k_{i,t}\right\}\right].
+J_{\mathrm{GRPO}}=\mathbb{E}\left[\frac{1}{G}\sum_{i=1}^G\frac{1}{T_i}\sum_{t=1}^{T_i}\left(\ell(\rho_{i,t},\hat{A}_i)-\beta k_{i,t}\right)\right].
 ```
+
+这里的期望对训练提示词及 old 策略生成的回答组取值，单样本函数沿用第 3 节的定义。
 
 改成全批 token 平均会改变长短回答的相对权重，不是等价改写。去掉 critic 节省其开销，但组采样也消耗资源，不能直接推出总显存减半。GRPO 可用可验证奖励，也可用奖励模型；过程监督的优势定义不同。[DeepSeekMath，§4.1.1–4.1.3](https://arxiv.org/html/2402.03300v3#S4.SS1)
 
