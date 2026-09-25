@@ -27,6 +27,47 @@ def close(actual, expected, tolerance=1e-6):
         raise AssertionError(f'{actual} != {expected}')
 
 
+def gae_terminal(rewards, values, gamma=1.0, lam=1.0):
+    """One fully valid, truly terminal sequence; no padding or truncation."""
+    if len(rewards) != len(values) or not rewards:
+        raise ValueError('Use matching, nonempty rewards and values.')
+    advantages = [0.0] * len(rewards)
+    next_value, next_advantage = 0.0, 0.0
+    for t in reversed(range(len(rewards))):
+        delta = rewards[t] + gamma * next_value - values[t]
+        next_advantage = delta + gamma * lam * next_advantage
+        advantages[t] = next_advantage
+        next_value = values[t]
+    returns = [a + v for a, v in zip(advantages, values)]
+    return advantages, returns
+
+
+def walkthrough_checks():
+    adv, returns = gae_terminal([0, 0, 1], [0.2, 0.4, 0.6])
+    for a, expected in zip(adv, [0.8, 0.6, 0.4]):
+        close(a, expected)
+    for value in returns:
+        close(value, 1.0)
+    print(f'GAE: advantages={[round(a, 4) for a in adv]}, returns={returns}')
+    # Padding deliberately has a large value: it must not enter the mean.
+    losses = [[1, 1, 999, 999], [3, 3, 3, 3]]
+    masks = [[1, 1, 0, 0], [1, 1, 1, 1]]
+    sums = [sum(v * m for v, m in zip(row, mask)) for row, mask in zip(losses, masks)]
+    lengths = [sum(mask) for mask in masks]
+    token_mean = sum(sums) / sum(lengths)
+    sequence_mean = sum(s / n for s, n in zip(sums, lengths)) / len(sums)
+    close(token_mean, 7 / 3)
+    close(sequence_mean, 2.0)
+    print(f'aggregation: token_mean={token_mean:.6f}, sequence_mean={sequence_mean:.6f}')
+    ratios = [1.6, 0.625]
+    sequence_ratio = math.exp(sum(math.log(r) for r in ratios) / len(ratios))
+    close(sequence_ratio, 1.0)
+    # Freeze old probabilities; varying one log-ratio changes the geometric mean.
+    slope = derivative(lambda z: math.exp((z + math.log(ratios[1])) / 2), math.log(ratios[0]))
+    close(slope, 0.5)
+    print(f'sequence ratio={sequence_ratio:.6f}, slope for one token log-ratio={slope:.6f}')
+
+
 def main():
     # Derivative is with respect to log(new probability), old held fixed.
     for advantage, ratio, expected in [(2, 1, 2), (2, 1.4, 0),
@@ -66,6 +107,7 @@ def main():
     close(with_mean, (1 - 1 / group) * true_gradient)
     close(with_loo, true_gradient)
     print(f'baseline: exact gradient={true_gradient:.6f}, self-included mean={with_mean:.6f}, leave-one-out={with_loo:.6f}')
+    walkthrough_checks()
     print('All mechanism checks passed.')
 
 
