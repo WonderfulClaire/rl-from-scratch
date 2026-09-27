@@ -21,7 +21,18 @@ from dataclasses import dataclass
 from math import exp
 from statistics import mean, pstdev
 
-from reward_hacking_demo import Candidate, naive_public_reward, secure_reward
+import importlib.util
+from pathlib import Path
+
+_sibling = Path(__file__).with_name("reward_hacking_demo.py")
+_spec = importlib.util.spec_from_file_location("reward_hacking_demo_sibling", _sibling)
+_reward_demo = importlib.util.module_from_spec(_spec)
+assert _spec.loader is not None
+_spec.loader.exec_module(_reward_demo)
+
+Candidate = _reward_demo.Candidate
+naive_public_reward = _reward_demo.naive_public_reward
+secure_reward = _reward_demo.secure_reward
 
 
 ACTIONS = (
