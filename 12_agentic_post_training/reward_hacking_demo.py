@@ -7,7 +7,6 @@ the environment/reward contract.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
 from statistics import mean, pstdev
 from typing import Iterable
 
@@ -20,11 +19,11 @@ PUBLIC_X = (0, 1, 2)
 HIDDEN_X = (-3, -1, 7)
 
 
-@dataclass(frozen=True)
 class Candidate:
-    name: str
-    implementation: str
-    public_tests_present: bool = True
+    def __init__(self, name: str, implementation: str, public_tests_present: bool = True):
+        self.name = name
+        self.implementation = implementation
+        self.public_tests_present = public_tests_present
 
 
 def evaluate_impl(implementation: str, x: int) -> int:
