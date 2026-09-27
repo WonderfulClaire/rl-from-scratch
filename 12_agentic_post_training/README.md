@@ -1,6 +1,6 @@
 # 12 · Agentic Post-Training：环境、Verifier、Reward Hacking 与 Harness Generalization
 
-[返回全库](../README.md) · [第 10 章：PPO / GRPO / DPO](../10_rlhf_dpo_grpo/) · [可运行演示](reward_hacking_demo.py)
+[返回全库](../README.md) · [第 10 章：PPO / GRPO / DPO](../10_rlhf_dpo_grpo/) · [Reward Hacking Demo](reward_hacking_demo.py) · [GRPO Reward-Quality Demo](agentic_grpo_demo.py)
 
 第 10 章回答的是：拿到 rollout 和 reward 以后，PPO / GRPO 怎么更新语言模型？
 
@@ -127,6 +127,27 @@ python 12_agentic_post_training/reward_hacking_demo.py
 ~~~
 
 脚本会打印 naive reward、secure reward 和 secure-reward GRPO group advantage。
+
+再运行：
+
+~~~bash
+python 12_agentic_post_training/agentic_grpo_demo.py
+~~~
+
+这个演示把四类 agent 策略直接当成一个 categorical policy，在同一组 balanced rollout 上做确定性的 group-relative policy update。
+
+结果会出现一个很关键的差别：
+
+~~~text
+naive reward:
+  correct / delete-tests / hard-code
+  都被强化
+
+secure reward:
+  只有真正 correct fix 被强化
+~~~
+
+也就是说，**GRPO 本身没有“防作弊”机制**。它只会忠实地提高高 reward 行为的概率。
 
 ## 5. Harness 也是训练分布的一部分
 

@@ -85,12 +85,25 @@ def test_agentic_reward_hacking_contract():
     print("[PASS] 12 reward hacking rejected by secure verifier")
 
 
+def test_agentic_grpo_optimizes_reward_contract():
+    """第12章: naive reward 会强化 exploit，secure reward 才强化真实修复。"""
+    m = _load("12_agentic_post_training/agentic_grpo_demo.py")
+    result = m.run_demo(steps=8)
+    naive = result["naive_probs"]
+    secure = result["secure_probs"]
+    assert naive[1] > naive[3] and naive[2] > naive[3]
+    assert abs(naive[0] - naive[1]) < 1e-9
+    assert secure[0] > 0.9
+    print("[PASS] 12 GRPO follows reward contract; secure verifier selects real fix")
+
+
 def main():
     tests = [
         test_bellman_analytic_equals_iterative,
         test_policy_iteration_equals_value_iteration,
         test_td0_beats_mc_on_random_walk,
         test_agentic_reward_hacking_contract,
+        test_agentic_grpo_optimizes_reward_contract,
     ]
     failed = 0
     for t in tests:
