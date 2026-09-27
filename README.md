@@ -31,6 +31,14 @@ python 10_rlhf_dpo_grpo/mechanism_demo.py
 
 无需额外依赖；检查裁剪梯度、同分组、KL 估计和有限样本基线，不训练模型。
 
+第 12 章新增一个更直接的 Agentic RL 反例：
+
+```bash
+python 12_agentic_post_training/agentic_grpo_demo.py
+```
+
+同样的 GRPO-style policy update，在 naive public reward 下会同时强化“正确修复”和两种 exploit；换成 secure verifier reward 后才会把概率质量集中到真正正确的策略。这个实验把 **reward hacking → advantage → policy update** 连成一条可运行链。
+
 ---
 
 ## 💡 为什么做这个库？
