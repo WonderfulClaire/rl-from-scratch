@@ -21,6 +21,8 @@
 
 ## 后训练专题：从环境 RL 走向语言模型
 
+[第 12 章](12_agentic_post_training/README.md) 继续把第 10 章的优化目标往前接到 Agent 环境：为什么 verifier 比算法选择更早、reward hacking 怎么出现、harness 为什么是训练分布的一部分，以及 verified trajectory 如何接到 SFT → RL。
+
 [第 10 章](10_rlhf_dpo_grpo/README.md) 串起 token 级 MDP、PPO 与 GAE、GRPO 组内优势、KL 方向与采样分布、奖励设计及 DPO。附计算流程图、数值例子与自测，并逐项说明现有玩具实现的边界。
 
 ```bash
@@ -41,7 +43,7 @@ python 10_rlhf_dpo_grpo/mechanism_demo.py
 
 这个库把三件事钉在一起：通过推导、实现与实验记录共同学习强化学习；各章节的验证范围需要分别检查。
 
-11 章，从表格方法走到 RLHF 与量化交易，一条线走完现代强化学习的完整主干。
+12 章，从表格方法走到 RLHF、Agentic Post-Training 与量化交易，一条线走完现代强化学习的完整主干。
 
 ---
 
@@ -93,6 +95,7 @@ python 10_rlhf_dpo_grpo/mechanism_demo.py
 | [09](09_multi_agent/) | 多智能体 RL | 随机博弈、非平稳性问题、CTDE 范式、IPPO / MAPPO | 合作矩阵博弈 + 多智能体网格 |
 | [10](10_rlhf_dpo_grpo/) | LLM 时代的 RL：RLHF / DPO / GRPO | Bradley-Terry 模型、KL 约束下最优策略闭式解、DPO 完整推导、GRPO 组内基线 | 玩具语言模型（字符级） |
 | [11](11_rl_for_trading/) | RL 与量化交易 | 交易 MDP 建模、仓位管理、含交易成本的奖励设计、回测陷阱 | 自实现交易环境（合成风格数据） |
+| [12](12_agentic_post_training/) | Agentic Post-Training | Verifiable reward、reward hacking、harness generalization、trajectory→SFT→RL | 确定性 toy agent environment |
 
 ---
 
@@ -179,6 +182,7 @@ rl-from-scratch/
 ├── 09_multi_agent/          # 多智能体 RL（IPPO / MAPPO）
 ├── 10_rlhf_dpo_grpo/        # RLHF / DPO / GRPO
 ├── 11_rl_for_trading/       # RL 与量化交易
+├── 12_agentic_post_training/ # Verifier / reward hacking / harness generalization
 ├── results/                 # 真实实验结果与曲线图
 ├── tests/                   # 冒烟测试
 ├── tools/                   # 基准测试工具
@@ -194,7 +198,7 @@ rl-from-scratch/
 ## 🛤️ 学习路线建议
 
 - **零基础入门**：01 → 02 → 03 → 04 → 05 → 06 → 07，走完就掌握了现代 RL 的主干。
-- **面向 LLM / RLHF 岗位**：吃透 06、07 的推导（PPO 是 RLHF 的心脏），然后精读 10。
+- **面向 LLM / RLHF / Agentic Training 岗位**：吃透 06、07 的策略优化，再精读 10（PPO/GRPO/DPO）和 12（Verifier/Reward/Harness）。
 - **面向量化交易**：01-05 打基础，然后精读 11，重点关注奖励设计与回测陷阱一节。
 - **只想查公式**：每章 README 的推导都是自包含的，可独立阅读。
 
