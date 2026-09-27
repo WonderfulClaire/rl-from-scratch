@@ -17,7 +17,6 @@ the gradient on logits is exactly the per-action group advantage.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
 from math import exp
 from statistics import mean, pstdev
 
@@ -53,12 +52,18 @@ def standardized_advantages(rewards: list[float], eps: float = 1e-8) -> list[flo
     return [(r - mu) / (sigma + eps) for r in rewards]
 
 
-@dataclass
 class StepResult:
-    rewards: list[float]
-    advantages: list[float]
-    before: list[float]
-    after: list[float]
+    def __init__(
+        self,
+        rewards: list[float],
+        advantages: list[float],
+        before: list[float],
+        after: list[float],
+    ) -> None:
+        self.rewards = rewards
+        self.advantages = advantages
+        self.before = before
+        self.after = after
 
 
 def one_balanced_grpo_step(
