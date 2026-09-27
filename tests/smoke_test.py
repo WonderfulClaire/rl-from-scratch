@@ -73,11 +73,24 @@ def test_td0_beats_mc_on_random_walk():
     print(f"[PASS] 03 MC/TD ran (RMSE mc={r_mc:.3f}, td={r_td:.3f})")
 
 
+def test_agentic_reward_hacking_contract():
+    """第12章: naive reward 可被利用，secure verifier 能拒绝同一漏洞。"""
+    m = _load("12_agentic_post_training/reward_hacking_demo.py")
+    result = m.run_checks()
+    rows = result["rows"]
+    assert rows[1]["naive_reward"] == 1.0
+    assert rows[1]["secure_reward"] == 0.0
+    assert rows[2]["naive_reward"] == 1.0
+    assert rows[2]["secure_reward"] == 0.0
+    print("[PASS] 12 reward hacking rejected by secure verifier")
+
+
 def main():
     tests = [
         test_bellman_analytic_equals_iterative,
         test_policy_iteration_equals_value_iteration,
         test_td0_beats_mc_on_random_walk,
+        test_agentic_reward_hacking_contract,
     ]
     failed = 0
     for t in tests:
